@@ -24,22 +24,48 @@
 
   <!-- 用 CDN 引入 axios，无需安装任何包 -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-  async function send() {
-    const msg = document.getElementById('message').value.trim();
-    document.getElementById('reply').innerText = '🤖 AI 正在思考...';
+  <script>
+    async function send() {
+      const API_KEY = document.getElementById('key').value.trim();
+      if (!API_KEY) {
+        alert('请先输入你的 API Key');
+        return;
+      }
 
-    try {
-      const res = await axios.post(
-        '/.netlify/functions/chat',    // ← 调用这里
-        { message: msg }
-      );
-      document.getElementById('reply').innerText = res.data.reply;
-    } catch (err) {
-      console.error(err);
-      document.getElementById('reply').innerText = '❌ 请求出错，请检查控制台';
+      const msg = document.getElementById('message').value.trim();
+      if (!msg) {
+        alert('请输入问题后再发送');
+        return;
+      }
+
+      const replyDiv = document.getElementById('reply');
+      replyDiv.innerText = '🤖 AI 正在思考...';
+
+      try {
+        const res = await axios.post(
+                    '/api/chat',
+                    { message: msg }
+          {
+            model: "deepseek-chat",
+            messages: [
+              { role: "system", content: "你是一个聪明、温柔且专业的 AI 助手。" },
+              { role: "user", content: msg }
+            ]
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${API_KEY}`
+            }
+          }
+        );
+
+        replyDiv.innerText = res.data.choices[0].message.content;
+      } catch (err) {
+        console.error(err);
+        replyDiv.innerText = '❌ 请求出错，请检查控制台信息';
+      }
     }
-  }
-</script>
+  </script>
 </body>
 </html>
