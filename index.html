@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>DeepSeek AI 聊天（单文件版）</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+    textarea { width: 100%; height: 80px; }
+    button { margin-top: 10px; padding: 8px 16px; }
+    #reply { white-space: pre-wrap; background: #f4f4f4; padding: 10px; margin-top: 20px; border-radius: 8px; }
+    #key { width: 100%; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>🔮 DeepSeek 聊天（单文件）</h2>
+
+  <!-- 让你在页面输入 API Key，避免硬编码在文件里 -->
+  <input id="key" type="password" placeholder="请输入你的 DeepSeek API Key" />
+
+  <textarea id="message" placeholder="输入你的问题..."></textarea>
+  <br>
+  <button onclick="send()">发送</button>
+  <div id="reply"></div>
+
+  <!-- 用 CDN 引入 axios，无需安装任何包 -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    async function send() {
+      const API_KEY = document.getElementById('key').value.trim();
+      if (!API_KEY) {
+        alert('请先输入你的 API Key');
+        return;
+      }
+
+      const msg = document.getElementById('message').value.trim();
+      if (!msg) {
+        alert('请输入问题后再发送');
+        return;
+      }
+
+      const replyDiv = document.getElementById('reply');
+      replyDiv.innerText = '🤖 AI 正在思考...';
+
+      try {
+        const res = await axios.post(
+          'https://api.deepseek.com/v1/chat/completions',
+          {
+            model: "deepseek-chat",
+            messages: [
+              { role: "system", content: "你是一个聪明、温柔且专业的 AI 助手。" },
+              { role: "user", content: msg }
+            ]
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${API_KEY}`
+            }
+          }
+        );
+
+        replyDiv.innerText = res.data.choices[0].message.content;
+      } catch (err) {
+        console.error(err);
+        replyDiv.innerText = '❌ 请求出错，请检查控制台信息';
+      }
+    }
+  </script>
+</body>
+</html>
