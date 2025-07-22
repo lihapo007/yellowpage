@@ -1,4 +1,0 @@
-# netlify.toml
-[build]
-  publish = "."           # 静态文件根目录
-  functions = "functions" # Serverless 函数目录
